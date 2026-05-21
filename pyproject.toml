@@ -2,7 +2,9 @@
 name = "mediasearch"
 version = "0.1.0"
 description = "Indexes and searches through media"
-dependencies = [ ]
+dependencies = [
+	"peewee"
+]
 
 [project.scripts]
 cli = "main:main"
