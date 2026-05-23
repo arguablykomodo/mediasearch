@@ -27,7 +27,7 @@ class FileIndex(FTS5Model):
         }
 
 def connect(directory: str):
-    db_path = path.realpath(path.join(directory, ".mediasearch.sqlite"))
+    db_path = path.join(directory, ".mediasearch.sqlite")
     db.init(db_path)
     db.connect()
     db.create_tables([File, FileIndex])

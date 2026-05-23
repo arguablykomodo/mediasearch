@@ -1,6 +1,7 @@
-import datetime
+from datetime import datetime
 import argparse
 import db
+import os
 
 def search(args: argparse.Namespace):
     db.connect(args.directory)
@@ -23,10 +24,13 @@ def search(args: argparse.Namespace):
 
 def index(args: argparse.Namespace):
     db.connect(args.directory)
-    file_a = db.File.create(path="a.png", mtime=datetime.datetime.fromisoformat("2011-11-11"))
-    file_b = db.File.create(path="b.png", text="The quick brown fox jumps over the lazy dog", mtime=datetime.datetime.fromisoformat("2003-11-11"))
-    file_c = db.File.create(path="c.png", audio="Sphinx of black quartz, judge my vow", mtime=datetime.datetime.fromisoformat("2005-11-11"))
-    file_d = db.File.create(path="d.png", text="The quick brown fox jumps over the lazy dog", audio="Sphinx of black quartz, judge my vow", mtime=datetime.datetime.fromisoformat("2018-11-11"))
+    filepaths = next(os.walk(args.directory), (None, None, []))[2] # https://stackoverflow.com/a/3207973
+    for filepath in filepaths:
+        mtime = datetime.fromtimestamp(os.stat(filepath).st_mtime)
+        file, created = db.File.get_or_create(path=filepath, defaults={"mtime": mtime})
+        if file.mtime > mtime or created or args.force:
+            file.mtime = mtime
+    db.File.delete().where(db.File.path.not_in(filepaths))
     db.FileIndex.rebuild()
     db.FileIndex.optimize()
 
@@ -46,6 +50,7 @@ parser_search.set_defaults(func=search)
 
 parser_index = subparsers.add_parser("index", help="Index a directory")
 _ = parser_index.add_argument("directory", type=str, help="Directory to index")
+_ = parser_search.add_argument("-f", "--force", action="store_true", help="Re-index already indexed files")
 parser_index.set_defaults(func=index)
 
 args = parser.parse_args()
