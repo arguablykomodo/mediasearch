@@ -5,6 +5,7 @@ description = "Indexes and searches through media"
 dependencies = [
 	"peewee",
 	"tqdm",
+	"easyocr",
 ]
 
 [project.scripts]
