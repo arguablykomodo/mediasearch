@@ -28,7 +28,7 @@
         pkgs.mkShell {
           packages = [
             pythonEnv
-            pkgs.basedpyright
+            pkgs.pyright
           ];
         };
       packages.${system}.default =
