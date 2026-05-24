@@ -1,5 +1,6 @@
 from datetime import datetime
 import argparse
+from tqdm import tqdm
 import db
 import os
 
@@ -24,13 +25,14 @@ def search(args: argparse.Namespace):
 
 def index(args: argparse.Namespace):
     db.connect(args.directory)
-    filepaths = next(os.walk(args.directory), (None, None, []))[2] # https://stackoverflow.com/a/3207973
-    for filepath in filepaths:
+    files = next(os.walk(args.directory), (None, None, []))[2] # https://stackoverflow.com/a/3207973
+    for name in tqdm(files):
+        filepath = os.path.realpath(os.path.join(args.directory, name))
         mtime = datetime.fromtimestamp(os.stat(filepath).st_mtime)
         file, created = db.File.get_or_create(path=filepath, defaults={"mtime": mtime})
         if file.mtime > mtime or created or args.force:
             file.mtime = mtime
-    db.File.delete().where(db.File.path.not_in(filepaths))
+    db.File.delete().where(db.File.path.not_in(files))
     db.FileIndex.rebuild()
     db.FileIndex.optimize()
 
