@@ -6,6 +6,7 @@ import os
 import sys
 import db
 from text import Text
+from audio import Audio
 
 def search(args: argparse.Namespace):
     db.connect(args.directory)
@@ -33,10 +34,13 @@ def index(args: argparse.Namespace):
     if args.types is None:
         args.types = ["text", "audio"]
     text = None
+    audio = None
     if "text" in args.types:
         if args.lang is None:
             raise Exception("No languages were specified")
         text = Text(args.lang)
+    if "audio" in args.types:
+        audio = Audio()
 
     for name in tqdm(files):
         filepath = os.path.realpath(os.path.join(args.directory, name))
@@ -50,6 +54,11 @@ def index(args: argparse.Namespace):
                     file.text = text.parse(filepath, mimetype)
                 except Exception as e:
                     print(f"\033[31mError during text recognition for file {filepath}:\033[39m {e}", file=sys.stderr)
+            if audio is not None:
+                try:
+                    file.text = audio.parse(filepath, mimetype)
+                except Exception as e:
+                    print(f"\033[31mError during speech recognition for file {filepath}:\033[39m {e}", file=sys.stderr)
             file.save()
     db.File.delete().where(db.File.path.not_in(files))
     db.FileIndex.rebuild()

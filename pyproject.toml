@@ -6,6 +6,7 @@ dependencies = [
 	"peewee",
 	"tqdm",
 	"easyocr",
+	"openai-whisper",
 ]
 
 [project.scripts]
