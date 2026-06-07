@@ -56,7 +56,7 @@ def index(args: argparse.Namespace):
                     print(f"\033[31mError during text recognition for file {filepath}:\033[39m {e}", file=sys.stderr)
             if audio is not None:
                 try:
-                    file.text = audio.parse(filepath, mimetype)
+                    file.audio = audio.parse(filepath, mimetype)
                 except Exception as e:
                     print(f"\033[31mError during speech recognition for file {filepath}:\033[39m {e}", file=sys.stderr)
             file.save()
