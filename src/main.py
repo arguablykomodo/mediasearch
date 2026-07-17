@@ -5,8 +5,6 @@ from tqdm import tqdm
 import os
 import sys
 import db
-from text import Text
-from audio import Audio
 
 def search(args: argparse.Namespace):
     db.connect(args.directory)
@@ -38,8 +36,10 @@ def index(args: argparse.Namespace):
     if "text" in args.types:
         if args.lang is None:
             raise Exception("No languages were specified")
+        from text import Text
         text = Text(args.lang)
     if "audio" in args.types:
+        from audio import Audio
         audio = Audio()
 
     for name in tqdm(files):
